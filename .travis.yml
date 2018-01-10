@@ -1,13 +1,27 @@
+go_import_path: github.com/cloudflare/alertmanager2es
+sudo: false
+services:
+- docker
 language: go
-
 go:
 - 1.7.x
 - 1.8.x
 - master
-
 matrix:
   allow_failures:
   - go: master
-
 script:
 - make style test
+- make promu
+- promu crossbuild
+- promu crossbuild tarballs
+- promu checksum .tarballs
+deploy:
+  provider: releases
+  api_key:
+    secure: PGr6CiEhLtRuZAmSRKSWGB0rJfuAS8Gh59UJym1r4B/pWPVcdntNq+9XBNk/WLewPFE/JmvIVeCF40gSiAyA+X78vaPev6P90N+FYgraVSueyCwgQJZ0+AVn8m9jFT4nEis3Z2BZYL4pV3KRgF/qxCYsiO03Ec1stkC/bS6v8ZSZe/fRZuHkaHJ6v57yzGmbGSgUYX6szJSx0Gtk2/JIBJcKJwJcf4LcIn6n48MVi7zGRLOt+PI8l9mdlMTBnS2X9YmKypq6ftNMHIHOngMafOihhKZ5lno4V10fJ3DIfuU1CPUaUKPJ7lcLU2LwI6OoEP8WMdHG5neDtH6ay21rdHCpgXYHMRoF5UrfNGC/HmVJSVAffZPzVVMjpXK8Dp0I20np2+eJL07FdB0jktdIXKMvITqPuSsyg9vqvpx81qWtrBB8lDG20Q0Fg0a9amZiCFroLBrDbvY2HQKEWehTv4azOylHIit6kjA/sjLHJXgS0Lv8VhulEMRnoSV7cAPfNQXvmdhegMTbq4AfnIlgP2fRsx2sWdDpxkBkvxh3mOHc9B1FPGikMmicYCBjAQ4ZdWOQdzvOTOF5IZFMcDQ4LqDYcsohx6pDrEbxTifgnvJIld4WPYgYPLcKKTSmporXei3czMsJ/kZuYW/K1HSrcVx2IHxs484m6kTZsI09ZqU=
+  file_glob: true
+  file: ".tarballs/*"
+  skip_cleanup: true
+  on: 
+tags: true
