@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -29,6 +30,8 @@ var (
 	esIndexDateFormat = "2006.01"
 	esIndexName       = "alertmanager"
 	esURL             string
+	esUsername        string
+	esPassword        string
 	revision          = "unknown"
 	versionString     = fmt.Sprintf("%s %s (%s)", application, revision, runtime.Version())
 
@@ -55,6 +58,11 @@ func init() {
 	prometheus.MustRegister(notificationsReceived)
 }
 
+func basicAuth(username, password string) string {
+	auth := esUsername + ":" + esPassword
+	return base64.StdEncoding.EncodeToString([]byte(auth))
+}
+
 func main() {
 	var showVersion bool
 	flag.StringVar(&addr, "addr", addr, "host:port to listen to")
@@ -62,6 +70,8 @@ func main() {
 	flag.StringVar(&esIndexName, "esIndexName", esIndexName, "Elasticsearch index name")
 	flag.StringVar(&esType, "esType", esType, "Elasticsearch document type ('_type')")
 	flag.StringVar(&esURL, "esURL", esURL, "Elasticsearch HTTP URL")
+	flag.StringVar(&esUsername, "esUsername", esUsername, "Elasticsearch username")
+	flag.StringVar(&esPassword, "esPassword", esPassword, "Elasticsearch password")
 	flag.BoolVar(&showVersion, "version", false, "Print version number and exit")
 	flag.Parse()
 
@@ -75,6 +85,7 @@ func main() {
 		flag.Usage()
 		os.Exit(2)
 	}
+
 
 	http.DefaultClient.Timeout = 10 * time.Second
 	s := &http.Server{
@@ -147,6 +158,9 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(b))
+	if (esUsername != "") && (esPassword != "") {
+		req.Header.Add("Authorization", "Basic "+basicAuth(esUsername, esPassword))
+	}
 	if err != nil {
 		notificationsErrored.Inc()
 		http.Error(w, err.Error(), http.StatusInternalServerError)
