@@ -86,7 +86,6 @@ func main() {
 		os.Exit(2)
 	}
 
-
 	http.DefaultClient.Timeout = 10 * time.Second
 	s := &http.Server{
 		Addr:         addr,
