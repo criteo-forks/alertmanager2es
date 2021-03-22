@@ -189,7 +189,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	if resp.StatusCode/100 != 2 {
 		notificationsErrored.Inc()
-		err := fmt.Errorf("POST to Elasticsearch on %q returned HTTP %d:  %s", url, resp.StatusCode, body)
+		err := fmt.Errorf("POST to Elasticsearch on %q returned HTTP %d:  %s for alertname=%s ", url, resp.StatusCode, body, msg.CommonLabels["alertname"])
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		log.Print(err)
 		return
