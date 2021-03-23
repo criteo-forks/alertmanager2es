@@ -15,7 +15,8 @@ jobs:
         go-version: 1.7
 
     - name: Build
-      run: | ls
+      run: |
+          ls
           printenv | grep -i go
           go version
           pwd
