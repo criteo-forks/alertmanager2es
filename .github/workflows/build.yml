@@ -3,26 +3,74 @@ name: CI testing
 on: [push]
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
+    env:
+      GOPATH: ${{ github.workspace }}
+      GO111MODULE: on
+    defaults:
+      run:
+        working-directory: ${{ env.GOPATH }}/src/github.com/${{ github.repository }}
     steps:
-    - uses: actions/checkout@v2
-
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        path: ${{ env.GOPATH }}/src/github.com/${{ github.repository }}
     - name: Set up Go
       uses: actions/setup-go@v2
       with:
-        go-version: 1.7
+        go-version: 1.13
     - name: Debug
       run: |
         pwd
+        ls 
+        env
         echo ${GOPATH}
         echo ${GOROOT}
-
     - name: Build
       run: |
-          ls
-          printenv | grep -i go
-          go version
-          pwd
-          make style test
+        # go build
+        ls
+        make style test
+        make promu
+
+    # -
+    #   name: Run GoReleaser
+    #   uses: goreleaser/goreleaser-action@v2
+    #   with:
+    #     version: latest
+    #     args: release --rm-dist
+    #     workdir: ${{ env.GOPATH }}/src/github.com/${{ github.repository }}
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    # - run: |
+    #     ls 
+    #     ls dist/*
+    # - uses: actions/upload-artifact@main
+    #   with:
+    #     name: webpack artifacts
+    #     path: ${{ env.GOPATH }}/src/github.com/${{ github.repository }}/dist/
+
+    # - name: Debug
+    #   run: |
+    #     pwd
+    #     echo ${GOPATH}
+    #     echo ${GOROOT}
+
+    # - name: Test
+    #   run: |
+    #     go test -cover $(go list ./... | grep -v /vendor/)
+    #   env:
+    #     GOPATH: /home/runner/work/alertmanager2es/alertmanager2es/go
+    # - name: make
+    #   run: |
+    #     echo "Start"
+    #     ls
+    #     echo "Test"
+    #     cd ${GOPATH}  
+    #     ls
+    #    # make style test 
+    #    # make promu
+    #   env:
+    #     GOPATH: /home/runner/work/alertmanager2es/alertmanager2es/go
