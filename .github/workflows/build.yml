@@ -15,8 +15,8 @@ jobs:
         go-version: 1.7
 
     - name: Build
-      run: ls
-    - run: printenv | grep -i go
-    - run: go version
-    - run: pwd
-    - run: make style test
+      run: | ls
+          printenv | grep -i go
+          go version
+          pwd
+          make style test
