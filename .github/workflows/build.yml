@@ -16,7 +16,7 @@ jobs:
 
     - name: Build
       run: ls
-    - run: echo "test"
     - run: printenv | grep -i go
     - run: go version
+    - run: pwd
     - run: make style test
