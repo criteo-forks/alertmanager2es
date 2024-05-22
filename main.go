@@ -25,7 +25,6 @@ var (
 	application = "alertmanager2es"
 	// See AlertManager docs for info on alert groupings:
 	// https://prometheus.io/docs/alerting/configuration/#route-<route>
-	esType = "alert_group"
 	// Index by month as we don't produce enough data to warrant a daily index
 	esIndexDateFormat = "2006.01"
 	esIndexName       = "alertmanager"
@@ -68,7 +67,6 @@ func main() {
 	flag.StringVar(&addr, "addr", addr, "host:port to listen to")
 	flag.StringVar(&esIndexDateFormat, "esIndexDateFormat", esIndexDateFormat, "Elasticsearch index date format")
 	flag.StringVar(&esIndexName, "esIndexName", esIndexName, "Elasticsearch index name")
-	flag.StringVar(&esType, "esType", esType, "Elasticsearch document type ('_type')")
 	flag.StringVar(&esURL, "esURL", esURL, "Elasticsearch HTTP URL")
 	flag.StringVar(&esUsername, "esUsername", esUsername, "Elasticsearch username")
 	flag.StringVar(&esPassword, "esPassword", esPassword, "Elasticsearch password")
@@ -145,8 +143,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	// ISO8601: https://github.com/golang/go/issues/2141#issuecomment-66058048
 	msg.Timestamp = now.Format(time.RFC3339)
 
-	index := fmt.Sprintf("%s-%s/%s", esIndexName, now.Format(esIndexDateFormat), esType)
-	url := fmt.Sprintf("%s/%s", esURL, index)
+	index := fmt.Sprintf("%s-%s", esIndexName, now.Format(esIndexDateFormat))
+	url := fmt.Sprintf("%s/%s/_doc", esURL, index)
 
 	b, err = json.Marshal(&msg)
 	if err != nil {
